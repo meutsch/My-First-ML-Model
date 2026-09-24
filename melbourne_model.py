@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
@@ -66,18 +67,29 @@ X = filtered_melbourne_data[melbourne_features]
 # Split data into training and validation data, for both features and target
 train_X, val_X, train_y, val_y = train_test_split(X, y, random_state = 0)
 
+# Build forest model
+forest_model = RandomForestRegressor(random_state=1)
+forest_model.fit(train_X, train_y)
+melb_preds = forest_model.predict(val_X)
+print(mean_absolute_error(val_y, melb_preds))
+
+""" ERROR:
+My MAE: 207226.35743972045
+Kaggle MAE: 191669.7536453626
+"""
+
 # # Review the data corresponding to features
 # print("\nMelbourne Feature Data Summary:")
 # print(X.describe())
 # print("\nMelbourne Feature Data Head:")
 # print(X.head())
 
-# Build multiple models using get_mae() and compare them
-max_leaves = [5, 50, 500, 5000]
-for max_leaf_nodes in max_leaves:
-    my_mae = get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y)
-    print("Max leaf nodes:  %d   \t\t Mean Absolute Error:  %d" 
-          %(max_leaf_nodes, my_mae))
+# # Build multiple models using get_mae() and compare them
+# max_leaves = [5, 50, 500, 5000]
+# for max_leaf_nodes in max_leaves:
+#     my_mae = get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y)
+#     print("Max leaf nodes:  %d   \t\t Mean Absolute Error:  %d" 
+#           %(max_leaf_nodes, my_mae))
 
 # # Define the models
 # old_melbourne_model = DecisionTreeRegressor(random_state=1)
