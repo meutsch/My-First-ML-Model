@@ -4,6 +4,32 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 
+# This function is used to test how the number of leaf nodes 
+# affects the mean absolute error of a model.
+
+# The best max_leaf_nodes for this model and data is 100.
+
+def get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y):
+    """
+    Builds a decision tree regressor with the given values and 
+    calculates its mean absolute error.
+
+    Parameters:
+    max_leaf_nodes (int): The maximum number of leaves in the model
+    train_X: The training data X-values (independent variable)
+    val_X: The validation data X-values
+    train_y: The training data y-values (dependent variable)
+    val_y: The validation data y-values
+
+    Returns:
+    mae: The mean absolute error for the produced model.
+    """
+    model = DecisionTreeRegressor(max_leaf_nodes=max_leaf_nodes, random_state=0)
+    model.fit(train_X, train_y)
+    preds_val = model.predict(val_X)
+    mae = mean_absolute_error(val_y, preds_val)
+    return(mae)
+
 # Path of the file to read
 iowa_file_path = Path(__file__).parent / "iowa_train.csv"
 
@@ -31,16 +57,23 @@ X = home_data[feature_names]
 # Split data into training and validation sets
 train_X, val_X, train_y, val_y = train_test_split(X, y, random_state = 1)
 
-# Review statistics from X and print the top few lines
-print("\nIowa Feature Data Summary:")
-print(X.describe())
-print("\nIowa Feature Data Head:")
-print(X.head())
+# # Review statistics from X and print the top few lines
+# print("\nIowa Feature Data Summary:")
+# print(X.describe())
+# print("\nIowa Feature Data Head:")
+# print(X.head())
+
+# Build multiple models using get_mae() and compare them
+candidate_max_leaf_nodes = [5, 25, 50, 100, 250, 500]   # best = 100
+for max_leaf_nodes in candidate_max_leaf_nodes:
+    my_mae = get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y)
+    print("Max leaf nodes:  %d   \t\t Mean Absolute Error:  %d" 
+          %(max_leaf_nodes, my_mae))
 
 # Specify the models
 # can set a numeric value for random_state when specifying the model
-old_iowa_model = DecisionTreeRegressor(random_state=1)
-iowa_model = DecisionTreeRegressor(random_state=1)
+old_iowa_model = DecisionTreeRegressor(max_leaf_nodes=100, random_state=1)
+iowa_model = DecisionTreeRegressor(max_leaf_nodes=100, random_state=1)
 
 # Fit the models
 old_iowa_model.fit(X, y)
